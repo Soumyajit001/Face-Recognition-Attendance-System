@@ -7,11 +7,11 @@ import pickle
 from sklearn.neighbors import KNeighborsClassifier
 from datetime import datetime
 
-video = cv2.VideoCapture(0)  # 0 is for webcam
+video = cv2.VideoCapture(0)     # 0 is for webcam
 if not video.isOpened():
     print("Error: Could not access the webcam")
     exit()
-ret, frame = video.read()   # ret, frame are going to read web camera
+ret, frame = video.read()       # ret, frame are going to read web camera
 if not ret:
     print("Error: Failed to capture image")
     exit()
@@ -23,13 +23,12 @@ with open('Data/names.pkl', 'rb') as w:
 with open('Data/face_data,pkl', 'rb') as f:
     FACES = pickle.load(f)
 
-print("Shape of FACES:", FACES.shape)
-print("Length of LABELS:", len(LABELS))
+# print("Shape of FACES:", FACES.shape)
+# print("Length of LABELS:", len(LABELS))
 
 # Fix mismatch if necessary
-if len(FACES) != len(LABELS):
-    # If LABELS has more samples than FACES, slice it to match
-    LABELS = LABELS[:len(FACES)]  # or adjust this logic depending on the mismatch
+if len(FACES) != len(LABELS):       # If LABELS has more samples than FACES, slice it to match
+    LABELS = LABELS[:len(FACES)]    # or adjust this logic depending on the mismatch
 
 knn = KNeighborsClassifier(n_neighbors=5)
 knn.fit(FACES, LABELS)
@@ -41,7 +40,7 @@ height, width, channels = img_background.shape
 COL_NAMES = ['NAME', 'TIME']
 
 while True:
-    ret, frame = video.read()   # ret, frame are going to read web camera
+    ret, frame = video.read()       # ret, frame are going to read web camera
     if not ret:
         print("Error: Failed to capture image")
         break
@@ -50,10 +49,8 @@ while True:
 
     for (x, y, w, h) in faces:
         crop_img = frame[y:y + h, x:x + w, :]
-        # Resize to match training dimensions
-        resized_img = cv2.resize(crop_img, dsize=(25, 50))
-        # Flatten and reshape
-        flattened_img = resized_img.flatten().reshape(1, -1)
+        resized_img = cv2.resize(crop_img, dsize=(25, 50))      # Resize to match training dimensions
+        flattened_img = resized_img.flatten().reshape(1, -1)    # Flatten and reshape
         # print("Prediction features:", flattened_img.shape[1])
 
         output = knn.predict(flattened_img)
@@ -64,8 +61,8 @@ while True:
         exist = os.path.isfile("Attendance/Attendance_"+date+timestamp+".csv")
         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 1)
         cv2.rectangle(frame, (x, y), (x+w, y+h), (50, 50, 255), 2)
-        cv2.rectangle(frame, (x, y-40), (x+w, y), (50, 50, 255), -1)
-        cv2.putText(frame, str(output[0]), (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (50, 50, 255), 2)
+        cv2.rectangle(frame, (x, y), (x+w, y), (50, 50, 255), -1)
+        cv2.putText(frame, str(output[0]), (x, y-20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (50, 50, 255), 2)
 
         attendance = [str(output[0]), str(timestamp)]
 
